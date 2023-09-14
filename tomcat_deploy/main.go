@@ -15,7 +15,7 @@ type Config struct {
 //
 // It parses command line flags to configure the application.
 // The flags include:
-// -h: Deploy to docker tomcat volume on selected host (e.g. rc.erp.sperasoft.com).
+// -h: Deploy to docker tomcat volume on selected host.
 //
 //	If not set, deploy will be performed to k8s pod.
 //
@@ -35,7 +35,7 @@ type Config struct {
 // No return types.
 func main() {
 	cfg := new(Config)
-	flag.StringVar(&cfg.Host, "h", "", "Deploy to docker tomcat volume on selected host (e.g. rc.erp.sperasoft.com). If not set, deploy will be performed to k8s pod")
+	flag.StringVar(&cfg.Host, "h", "", "Deploy to docker tomcat volume on selected host. If not set, deploy will be performed to k8s pod")
 	flag.BoolVar(&cfg.Build, "b", true, "Build maven project before deployment")
 	flag.Parse()
 	host := cfg.Host + ":22"
