@@ -6,11 +6,8 @@ import (
 	"os/exec"
 )
 
-// build is a function that performs a Maven build by executing the "mvn clean package" command.
-//
-// This function does not take any parameters.
-// It does not return any values.
 func build() {
+	log.Print("Building maven project...")
 	cmd := exec.Command("mvn", "clean", "package")
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr

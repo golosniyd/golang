@@ -11,12 +11,12 @@ import (
 	"golang.org/x/crypto/ssh"
 )
 
-// copyFileWithSCP copies a file from the source path to the destination path using SCP protocol.
+// copyFileWithSCP copies a file from the local machine to a remote host using SCP.
 //
 // Parameters:
-// - host: the hostname or IP address of the remote server.
-// - src: the path of the source file.
-// - dest: the path of the destination file.
+// - host: the address of the remote host.
+// - src: the path of the file to be copied.
+// - dest: the destination path on the remote host.
 //
 // Returns:
 // - error: an error if any occurred during the file copying process.
@@ -50,15 +50,12 @@ func copyFileWithSCP(host, src, dest string) error {
 	return err
 }
 
-// moveFileWithSSH moves a file from the source path to the destination path on a remote host using SSH.
+// moveFileWithSSH moves a file from a source to a destination using SSH.
 //
-// Parameters:
-// - host: the address of the remote host.
-// - src: the path of the source file.
-// - dest: the path of the destination file.
-//
-// Returns:
-// - error: an error if the file move operation fails.
+// host: the host to connect to.
+// src: the source file path.
+// dest: the destination file path.
+// error: an error if the file move operation fails.
 func moveFileWithSSH(host, src, dest string) error {
 	config, password, err := sshConfigHelper()
 	if err != nil {
@@ -84,13 +81,6 @@ func moveFileWithSSH(host, src, dest string) error {
 	return nil
 }
 
-// sshConfigHelper generates a SSH client configuration, password, and error.
-//
-// It calls the credentialHelper function to get the username.
-// It calls the readPassword function to get the passwordBytes.
-// It converts the passwordBytes to a string.
-// It calls the auth.PasswordKey function to generate a passwordKeyClientConfig.
-// It returns the passwordKeyClientConfig, the password, and an error.
 func sshConfigHelper() (*ssh.ClientConfig, string, error) {
 	username := credentialHelper()
 	passwordBytes, err := readPassword()

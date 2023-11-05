@@ -7,23 +7,30 @@ import (
 	"path"
 )
 
-// docker_deploy deploys a file to a docker container on a specified host.
+// docker_deploy deploys a file to a Docker container.
 //
 // Parameters:
-//   - host: the address of the host where the docker container is running.
-//   - filename: the name of the file to be deployed.
-//   - tmp_filepath: the temporary filepath on the host where the file will be copied to.
-//   - docker_filepath: the filepath inside the docker container where the file will be moved to.
-func docker_deploy(host, filename, tmp_filepath, docker_filepath string) {
+// - host: the host address of the Docker container.
+// - filename: the name of the file to be deployed.
+// - tmp_filepath: the temporary filepath on the host where the file will be copied.
+// - target_filepath: the target filepath on the host where the file will be moved.
+// - debug: a boolean indicating whether to enable debug mode.
+//
+// Returns: None.
+func docker_deploy(host, filename, tmp_filepath, target_filepath string, debug bool) {
+	if debug {
+		log.Printf("Debug info for the func: docker_deploy\nHost: %s\nFilename: %s\nTmp_filepath: %s\nTarget_filepath: %s\n", host, filename, tmp_filepath, target_filepath)
+	}
 	log.Print("Deployment to a docker container has been started...")
 	trimmed_filename := path.Base(filename)
+	// fmt.Printf("Destination: \"%s\"", destination)
 	err := copyFileWithSCP(host, filename, tmp_filepath)
 	if err != nil {
 		log.Fatalf("Failed to copy \"%s\" to directory on host: \"%s\" - \"%s\"\n", trimmed_filename, host, err)
 	} else {
 		log.Printf("Successfully copied \"%s\" to directory on host: \"%s\"\n", trimmed_filename, host)
 	}
-	err = moveFileWithSSH(host, tmp_filepath, docker_filepath)
+	err = moveFileWithSSH(host, tmp_filepath, target_filepath)
 	if err != nil {
 		log.Fatalf("Failed to deploy \"%s\" to docker tomcat volume on host: \"%s\" - \"%s\"\n", trimmed_filename, host, err)
 	} else {
@@ -34,21 +41,15 @@ func docker_deploy(host, filename, tmp_filepath, docker_filepath string) {
 
 // kubernetes_deploy deploys a file to a Kubernetes pod.
 //
-// It takes in the following parameters:
-// - appName: the name of the application
-// - filename: the name of the file to be deployed
-// - pathKuber: the path in the Kubernetes cluster where the file will be deployed
-//
-// This function does the following:
-// 1. Retrieves the pod name using the getPodName function.
-// 2. Checks if the pod is running.
-// 3. Trims the filename using the path.Base function.
-// 4. Constructs the destination path in the Kubernetes pod.
-// 5. Deploys the file to the Kubernetes pod using the deployFile function.
-//
-// If any errors occur during the deployment process, this function will log the error and exit.
-// If the deployment is successful, this function will log a success message.
-func kubernetes_deploy(appName, filename, pathKuber string) {
+// Parameters:
+// - appName: the name of the application.
+// - filename: the name of the file to be deployed.
+// - pathKuber: the path to the Kubernetes pod.
+// - debug: a boolean flag indicating whether to enable debug mode.
+func kubernetes_deploy(appName, filename, pathKuber string, debug bool) {
+	if debug {
+		log.Printf("Debug info for the func: kubernetes_deploy\nAppName: %s\nFilename: %s\nPathKuber: %s\n", appName, filename, pathKuber)
+	}
 	log.Print("Deployment to a kubernetes pod has been started...")
 	pod_name, err := getPodName(appName)
 	if err != nil || pod_name == "" {
@@ -66,14 +67,14 @@ func kubernetes_deploy(appName, filename, pathKuber string) {
 	}
 }
 
-// deployFile deploys a file from the source to the destination.
+// deployFile copies a file from the source to the destination.
 //
 // Parameters:
-//   - src: The source file path.
-//   - dest: The destination file path.
+// - src: the path of the source file.
+// - dest: the path of the destination file.
 //
 // Returns:
-//   - error: An error if the deployment fails.
+// - error: an error if the file copy operation fails.
 func deployFile(src, dest string) error {
 	cmd := exec.Command("kubectl", "cp", src, dest)
 	return cmd.Run()
